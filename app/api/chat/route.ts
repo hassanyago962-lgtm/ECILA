@@ -26,38 +26,39 @@ export async function POST(request: Request) {
   }
 }
 
-// Helper fetch mechanics for individual APIs using your Render Environment variables
 async function fetchOpenAI(prompt: string) {
+  if (!process.env.OPENAI_API_KEY) return 'OpenAI Key is missing in Render environment variables.';
   const res = await fetch('https://openai.com', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` },
-    body: JSON.stringify({ model: process.env.OPENAI_MODEL || 'gpt-4o-mini', messages: [{ role: 'user', content: prompt }] })
+    body: JSON.stringify({ model: 'gpt-4o-mini', messages: [{ role: 'user', content: prompt }] })
   });
   const data = await res.json();
-  return data.choices[0].message.content;
+  return data.choices?.[0]?.message?.content || 'Invalid API response format.';
 }
 
 async function fetchAnthropic(prompt: string) {
+  if (!process.env.ANTHROPIC_API_KEY) return 'Anthropic Key is missing in Render environment variables.';
   const res = await fetch('https://anthropic.com', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY!, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model: process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20241022', max_tokens: 1024, messages: [{ role: 'user', content: prompt }] })
+    headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({ model: 'claude-3-5-sonnet-20241022', max_tokens: 1024, messages: [{ role: 'user', content: prompt }] })
   });
   const data = await res.json();
-  return data.content[0].text;
+  return data.content?.[0]?.text || 'Invalid API response format.';
 }
 
 async function fetchGemini(prompt: string) {
-  const res = await fetch(`https://googleapis.com{process.env.GOOGLE_AI_MODEL || 'gemini-1.5-flash'}:generateContent?key=${process.env.GOOGLE_AI_API_KEY}`, {
+  if (!process.env.GOOGLE_AI_API_KEY) return 'Gemini Key is missing in Render environment variables.';
+  const res = await fetch(`https://googleapis.com{process.env.GOOGLE_AI_API_KEY}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
   });
   const data = await res.json();
-  return data.candidates[0].content.parts[0].text;
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || 'Invalid API response format.';
 }
 
-// The Agent synthesis function
 async function synthesizeBestAnswer(originalPrompt: string, responses: any) {
   const synthesisPrompt = `You are an expert AI orchestrator. A user asked: "${originalPrompt}". 
   Here are answers from different models:\n
@@ -66,5 +67,5 @@ async function synthesizeBestAnswer(originalPrompt: string, responses: any) {
   Gemini: ${responses.gemini}\n
   Compare these responses, extract the best points from each, filter out inaccuracies, and write one definitive, perfect master answer.`;
 
-  return await fetchOpenAI(synthesisPrompt); // Use OpenAI to judge and synthesize
+  return await fetchOpenAI(synthesisPrompt);
 }
