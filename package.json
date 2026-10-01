@@ -1,0 +1,33 @@
+{
+  "name": "ecila",
+  "private": true,
+  "version": "3.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "create-admin": "node scripts/create-admin.mjs",
+    "worker": "tsx worker/worker.ts",
+    "preflight": "node scripts/preflight.mjs",
+    "verify": "node scripts/verify-project.mjs",
+    "release-check": "node scripts/release-check.mjs"
+  },
+  "dependencies": {
+    "next": "16.3.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "pg": "8.23.0",
+    "tsx": "4.23.15",
+    "@aws-sdk/client-s3": "3.1141.0"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2",
+    "@types/node": "26.6.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/pg": "8.23.1"
+  },
+  "engines": {
+    "node": ">=20.11.0"
+  }
+}

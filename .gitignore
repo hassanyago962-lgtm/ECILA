@@ -1,0 +1,9 @@
+node_modules/
+.next/
+.env
+.env.local
+.env.production
+storage/
+python_worker/__pycache__/
+*.log
+.DS_Store
